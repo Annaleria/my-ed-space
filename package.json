@@ -1,0 +1,9 @@
+{
+  "name": "myedspace-app",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm -r run dev",
+    "build": "pnpm -r run build",
+    "start": "pnpm --filter backend start"
+  }
+}

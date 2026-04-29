@@ -1,0 +1,8 @@
+{
+  "name": "Fullstack Dev",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "backend",
+  "workspaceFolder": "/workspace",
+  "forwardPorts": [3000, 5173],
+  "postCreateCommand": "pnpm install"
+}
