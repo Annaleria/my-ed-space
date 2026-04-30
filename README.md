@@ -177,6 +177,9 @@ The development process followed an iterative approach:
 
 All architectural decisions, data modelling, and flow design were made independently to ensure clarity and correctness.
 
+**Example**
+The AI, in this case local qwen2.5-coder.7b via Ollama and Continue, wanted to put all the local db code into a single db.js in the root of the repositories folder, whereas I manually refactored these in repositories that better reflect the MES product flows.
+
 ## Future Improvements
 
 Given more time, the following enhancements would be made:

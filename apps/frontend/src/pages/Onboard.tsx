@@ -26,6 +26,10 @@ export default function Onboard() {
       // Such as, checks for invite token validity, valid email format, password strength, and other potential issues on the backend
       // returning appropriate status codes and messages
       if (!res.ok) throw new Error("Onboarding failed");
+      const data = await res.json();
+      if (data?.id) {
+        localStorage.setItem("student_id", data.id);
+      }
       setSuccess(true);
       setTimeout(() => navigate("/lms"), 1500);
     } catch (err) {

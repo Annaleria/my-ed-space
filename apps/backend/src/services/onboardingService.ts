@@ -2,6 +2,7 @@
 import { randomUUID, createHash } from "node:crypto";
 import { Student, StudentRepo } from "../repositories/userRepository.js";
 import { PurchaseRepo } from "../repositories/purchaseRepository.js";
+import { EnrolmentRepo } from "../repositories/courseRepository.js";
 
 export const OnboardingService = {
   onboardStudent: (
@@ -22,10 +23,14 @@ export const OnboardingService = {
       email,
       password: hashedPassword,
     };
-    StudentRepo.add(newStudent);
     if (newStudent.email === purchase.student_email) {
-      // Create enrolment here if we want to auto-enrol on purchase
-      // - for simplicity, we'll just rely on the frontend to call the enrolment API after onboarding
+      StudentRepo.add(newStudent);
+      // Auto-enrol the student in the purchased course
+      EnrolmentRepo.add({
+        id: randomUUID(),
+        student_id: newStudent.id,
+        course_id: purchase.course_id,
+      });
       return newStudent;
     } else {
       // In a real app, we'd handle this more gracefully (e.g. allow them to update the email)
