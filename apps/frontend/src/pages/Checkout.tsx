@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { type Course } from "@myedspace/shared";
 
 export default function Checkout() {
@@ -9,7 +9,7 @@ export default function Checkout() {
   const [parentEmail, setParentEmail] = useState("");
   const [studentEmail, setStudentEmail] = useState("");
   const [error, setError] = useState("");
-  const navigate = useNavigate();
+  const [inviteToken, setInviteToken] = useState<string | null>(null);
 
   useEffect(() => {
     let isActive = true;
@@ -48,9 +48,12 @@ export default function Checkout() {
           student_email: studentEmail,
         }),
       });
+      // Error messaging is kept generic for speed, but would be more specific in a production app
+      // Such as, checks for valid email formats, course availability, and other potential issues on the backend
+      // returning appropriate status codes and messages
       if (!res.ok) throw new Error("Purchase failed");
       const data: { invite_token: string } = await res.json();
-      navigate(`/onboard?invite=${data.invite_token}`);
+      setInviteToken(data.invite_token);
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -67,32 +70,43 @@ export default function Checkout() {
   return (
     <div style={{ maxWidth: 500, margin: "2rem auto" }}>
       <h1>Checkout: {course.subject}</h1>
-      <form onSubmit={handleSubmit}>
+      {inviteToken ? (
         <div>
-          <label htmlFor="parentEmail">Parent Email:</label>
-          <input
-            type="email"
-            name="parentEmail"
-            id="parentEmail"
-            value={parentEmail}
-            onChange={(e) => setParentEmail(e.target.value)}
-            required
-          />
+          <h2>Purchase Complete!</h2>
+          <p>Share this onboarding link with your student:</p>
+          <code>{`${globalThis.location.origin}/onboard?invite=${inviteToken}`}</code>
+          <p>
+            Or use this invite token: <code>{inviteToken}</code>
+          </p>
         </div>
-        <div>
-          <label htmlFor="studentEmail">Student Email:</label>
-          <input
-            type="email"
-            id="studentEmail"
-            name="studentEmail"
-            value={studentEmail}
-            onChange={(e) => setStudentEmail(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit">Buy</button>
-        {error && <div style={{ color: "red" }}>{error}</div>}
-      </form>
+      ) : (
+        <form onSubmit={handleSubmit}>
+          <div>
+            <label htmlFor="parentEmail">Parent Email:</label>
+            <input
+              type="email"
+              name="parentEmail"
+              id="parentEmail"
+              value={parentEmail}
+              onChange={(e) => setParentEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="studentEmail">Student Email:</label>
+            <input
+              type="email"
+              id="studentEmail"
+              name="studentEmail"
+              value={studentEmail}
+              onChange={(e) => setStudentEmail(e.target.value)}
+              required
+            />
+          </div>
+          <button type="submit">Buy</button>
+          {error && <div style={{ color: "red" }}>{error}</div>}
+        </form>
+      )}
     </div>
   );
 }
