@@ -1,5 +1,6 @@
-// packages/shared/src/index.ts
-
-export interface HealthResponse {
-  status: "ok";
-}
+export type Course = {
+  id: string;
+  subject: string;
+  year_range: string;
+  price: number;
+};

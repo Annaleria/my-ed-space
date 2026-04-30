@@ -54,24 +54,26 @@ project-root/
 ## Core User Flow
 
 1. **Parent Purchase**
+   - Parent lands on a product page
    - Parent selects a course
-   - Enters their email and student email
-   - Completes a mock checkout
-   - System generates an invitation token
+   - Parent completes a mock checkout (no real payment integration required)
+   - After purchase, the system generates a student access path (e.g. invitation link)
 
 Handled by: purchaseService
 
 2. **Student Onboarding**
-   - Student accesses onboarding via invitation link
-   - Completes basic details (name, password)
-   - Account is created and enrolled in the course
+   - Student accesses onboarding via the invitation or purchase outcome
+   - Student completes a basic onboarding form
+   - Student activates their account (e.g. sets a password, no real auth system required)
+   - On completion, the student can access the platform
 
 Handled by: onboardingService
 
 3. **LMS Access**
-   - Student “logs in” via a simplified session model
-   - Accesses a dashboard with available lessons
-   - Can open individual lessons
+   - Only authenticated students can access the LMS
+   - LMS contains a simple dashboard
+   - LMS shows a list of lessons
+   - Students can get access to a lesson
 
 Handled by: lmsService, sessionService
 
