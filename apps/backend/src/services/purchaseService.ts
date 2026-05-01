@@ -1,7 +1,8 @@
 import { randomBytes, randomUUID } from "node:crypto";
-import { Purchase, PurchaseRepo } from "../repositories/purchaseRepository.js";
+import { PurchaseRepo } from "../repositories/purchaseRepository.js";
 import { CourseRepo } from "../repositories/courseRepository.js";
 import { ParentRepo } from "../repositories/userRepository.js";
+import type { Purchase } from "@myedspace/shared";
 
 // In a real application, this would be moved an environment variable or configuration file
 // (e.g., process.env.FRONTEND_URL or a config module) to support different deployment environments

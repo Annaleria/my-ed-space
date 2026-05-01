@@ -3,8 +3,12 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "../..",
-    "ignoreDeprecations": "6.0"
+
+    "paths": {
+      "@myedspace/shared": ["packages/shared/src/index.ts"],
+      "@myedspace/shared/*": ["packages/shared/src/*"]
+    }
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "../../packages/**/*.ts"],
   "exclude": ["node_modules", "dist", "build"]
 }

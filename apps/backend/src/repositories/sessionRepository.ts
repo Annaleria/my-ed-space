@@ -1,8 +1,4 @@
-export type Session = {
-  id: string;
-  student_id: string;
-};
-
+import type { Session } from "@myedspace/shared";
 export const sessions: Session[] = [];
 
 export const SessionRepo = {

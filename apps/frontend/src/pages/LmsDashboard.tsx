@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { type Course } from "@myedspace/shared";
+import type { Course } from "@myedspace/shared";
 
 // In a real app, student_id would come from auth/session
 // in production localStorage is not a secure place to store sensitive info, but for this demo we keep it simple
@@ -9,21 +9,19 @@ function getStudentId() {
 }
 
 export default function LmsDashboard() {
+  const navigate = useNavigate();
   const [enrolments, setEnrolments] = useState<{ course_id: string }[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [error, setError] = useState("");
+  const [studentId] = useState(getStudentId());
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-  const studentId = getStudentId();
 
   useEffect(() => {
     if (!studentId) {
-      navigate("/onboard");
       return;
     }
+    let isMounted = true;
     const encodedStudentId = encodeURIComponent(studentId);
-    // Error handling is kept simple for speed, but in a production app we'd want to
-    // handle errors from each request separately to provide better feedback to the user
     Promise.allSettled([
       fetch(`/api/lms/enrolments/student/${encodedStudentId}`).then((res) => {
         if (!res.ok)
@@ -41,6 +39,7 @@ export default function LmsDashboard() {
       }),
     ])
       .then(([enrolmentsResult, coursesResult]) => {
+        if (!isMounted) return;
         const errors: string[] = [];
 
         if (enrolmentsResult.status === "fulfilled") {
@@ -65,8 +64,26 @@ export default function LmsDashboard() {
 
         setError(errors.join(" "));
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (!isMounted) return;
+        setLoading(false);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, [studentId]);
+
+  // Redirect to onboarding if not logged in
+  // In a real app, we'd have a more robust auth flow with protected routes, but for this demo we keep it simple
+  useEffect(() => {
+    if (!studentId) {
+      navigate("/onboard", { replace: true });
+    }
   }, [studentId, navigate]);
+
+  if (!studentId) {
+    return null;
+  }
 
   if (loading) {
     return <div>Loading...</div>;
@@ -80,13 +97,21 @@ export default function LmsDashboard() {
       <ul>
         {enrolments.length === 0 && <li>No courses enrolled yet.</li>}
         {enrolments.map((enrolment) => {
-          // In a real app, we'd likely have more course details in the enrolment data to avoid this lookup, but we keep it simple here for speed
-          // Also would consider using a Map for courses if we expect a large number to avoid O(n) lookups, but for simplicity we use find here
+          // In a real app, we'd likely use a Map for courses if we expect a large number to avoid O(n) lookups,
+          // but for simplicity we use find here
           const course = courses.find((c) => c.id === enrolment.course_id);
           return (
-            <li key={enrolment.course_id}>
+            <li key={enrolment.course_id} style={{ marginBottom: 12 }}>
               {course ? (
-                <b>{course.subject}</b>
+                <>
+                  <b>{course.subject}</b> <span>({course.year_range})</span>
+                  <button
+                    style={{ marginLeft: 12 }}
+                    onClick={() => navigate(`/lms/course/${course.id}`)}
+                  >
+                    View Lessons
+                  </button>
+                </>
               ) : (
                 <span>Unknown course ({enrolment.course_id})</span>
               )}

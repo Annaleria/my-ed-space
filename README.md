@@ -5,7 +5,7 @@
 This project implements a simplified version of the MyEdSpace core user journey:
 Parent purchases → Student onboards → Student accesses the LMS
 
-The goal was to design and build a small full-stack application that demonstrates clear system structure, pragmatic engineering decisions, and an end-to-end product flow.
+The goal was to design and build a small full-stack application that demonstrates clear system structure, pragmatic engineering decisions, and complete end-to-end product flow.
 
 ## Architecture
 
@@ -16,8 +16,18 @@ Frontend (React SPA)
          ↓
 Backend (Node.js API - Express)
          ↓
-Database (PostgreSQL)
+Database (In-memory Storage)
 ```
+
+**Why in-memory storage?**
+
+Given the 3–4 hour constraint, I opted for in-memory storage to:
+
+- reduce setup complexity
+- focus on core product flow and architecture
+- avoid time spent on database configuration
+
+The repository layer abstracts data access, making it straightforward to introduce a persistent database (e.g. PostgreSQL) in the future.
 
 ## Repository Structure
 
@@ -36,19 +46,13 @@ project-root/
 │           │   ├── purchaseService.ts
 │           │   ├── onboardingService.ts
 │           │   ├── lmsService.ts
-│           │   └── authService.ts
-│           ├── repositories/            # DB interaction
+│           │   └── sessionService.ts
+│           ├── repositories/            # Data access abstraction
 │           └── utils/                   # Shared helpers
 ├── packages/
 │   └── shared/                          # Shared TS types
-├── .devcontainer/
 ├── docker/
-│   ├── backend.Dockerfile
-│   └── frontend.Dockerfile
-├── docker-compose.yml
-├── package.json
-├── tsconfig.base.json
-└── pnpm-workspace.yaml
+└── docker-compose.yml
 ```
 
 ## Core User Flow
@@ -56,24 +60,22 @@ project-root/
 1. **Parent Purchase**
    - Parent lands on a product page
    - Parent selects a course
-   - Parent completes a mock checkout (no real payment integration required)
-   - After purchase, the system generates a student access path (e.g. invitation link)
+   - Parent completes a mock checkout
+   - System generates a student access path with an invitation token
 
 Handled by: purchaseService
 
 2. **Student Onboarding**
-   - Student accesses onboarding via the invitation or purchase outcome
-   - Student completes a basic onboarding form
-   - Student activates their account (e.g. sets a password, no real auth system required)
-   - On completion, the student can access the platform
+   - Student accesses onboarding via the invitation
+   - Student completes basic details (name, email, password)
+   - Student account is created and enrolled in the course
 
 Handled by: onboardingService
 
 3. **LMS Access**
-   - Only authenticated students can access the LMS
-   - LMS contains a simple dashboard
-   - LMS shows a list of lessons
-   - Students can get access to a lesson
+   - Student accesses the platform via a simplified session
+   - Dashboard displays enrolled courses and lessons
+   - Lessons can be accessed individually
 
 Handled by: lmsService, sessionService
 
@@ -122,7 +124,9 @@ This reflects real-world systems where:
 
 Authentication is intentionally minimal:
 
-- session simulated via client-side storage
+- session handled via a lightweight token
+- stored client-side
+- validated server-side
 - no JWT or external auth provider
 
 This keeps focus on the core product flow while still modelling access control.
@@ -135,7 +139,7 @@ The focus is on:
 
 - access control
 - flow completion
-- user experience
+- user journey clarity
 
 ## Running the Application
 
@@ -154,7 +158,6 @@ This will start:
 
 - frontend (React)
 - backend (Node.js API)
-- database (PostgreSQL)
 
 ### Access the app
 
@@ -178,14 +181,14 @@ The development process followed an iterative approach:
 All architectural decisions, data modelling, and flow design were made independently to ensure clarity and correctness.
 
 **Example**
-The AI, in this case local qwen2.5-coder.7b via Ollama and Continue, wanted to put all the local db code into a single db.js in the root of the repositories folder, whereas I manually refactored these in repositories that better reflect the MES product flows.
+The AI, in this case local qwen2.5-coder.7b via Ollama and Continue, initially suggested a single shared db.js for in-memory storage. This was refactored into a repository layer to better align with domain boundaries and maintain separation of concerns.
 
 ## Future Improvements
 
 Given more time, the following enhancements would be made:
 
 - proper authentication (JWT/session handling)
-- persistent lesson/content management
+- persistent database (e.g. PostgreSQL)
 - validation and error handling improvements
 - test coverage (unit + integration)
 - improved UX (loading states, error feedback)

@@ -1,12 +1,20 @@
-FROM node:20-alpine AS build
+FROM node:20-alpine
 
 WORKDIR /app
+
+ENV CI=true
+
+# Copy entire monorepo
 COPY . .
 
-RUN npm install -g pnpm
-RUN pnpm install --frozen-lockfile
-RUN pnpm build
+# Install dependencies
+RUN npm install -g pnpm && pnpm install --frozen-lockfile
 
-FROM nginx:alpine
+# Build frontend
+RUN pnpm --filter frontend build
 
-COPY --from=build /app/apps/frontend/dist /usr/share/nginx/html
+WORKDIR /app/apps/frontend
+
+EXPOSE 5173
+
+CMD ["sh", "-c", "npm run preview -- --host 0.0.0.0 --port 5173"]

@@ -1,12 +1,7 @@
 import { randomUUID } from "node:crypto";
+import type { Course, Enrolment } from "@myedspace/shared";
 
-export type Course = {
-  id: string;
-  subject: string;
-  year_range: string;
-  price: number;
-};
-
+// In-memory course data
 export const courses: Course[] = [
   {
     id: randomUUID(),
@@ -34,12 +29,6 @@ export const CourseRepo = {
   add: (course: Course) => {
     courses.push(course);
   },
-};
-
-export type Enrolment = {
-  id: string;
-  student_id: string;
-  course_id: string;
 };
 
 export const enrolments: Enrolment[] = [];

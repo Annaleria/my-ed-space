@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   backend:
     build:
@@ -13,4 +11,4 @@ services:
       context: .
       dockerfile: docker/frontend.Dockerfile
     ports:
-      - "80:80"
+      - "5173:5173"

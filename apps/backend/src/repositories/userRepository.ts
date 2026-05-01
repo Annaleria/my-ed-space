@@ -1,8 +1,4 @@
-export type Parent = {
-  id: string;
-  email: string;
-};
-
+import type { Parent, Student } from "@myedspace/shared";
 export const parents: Parent[] = [];
 
 export const ParentRepo = {
@@ -11,13 +7,6 @@ export const ParentRepo = {
   add: (parent: Parent) => {
     parents.push(parent);
   },
-};
-
-export type Student = {
-  id: string;
-  name: string;
-  email: string;
-  password: string;
 };
 
 export const students: Student[] = [];

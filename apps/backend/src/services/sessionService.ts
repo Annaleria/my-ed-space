@@ -1,6 +1,7 @@
 // Handles mock session/authentication
 import { randomUUID } from "node:crypto";
-import { Session, SessionRepo } from "../repositories/sessionRepository.js";
+import { SessionRepo } from "../repositories/sessionRepository.js";
+import type { Session } from "@myedspace/shared";
 
 export const SessionService = {
   createSession: (student_id: string) => {
