@@ -38,7 +38,7 @@ export const lessons: Lesson[] = [
 ];
 
 export const LessonRepo = {
-  getAll: () => lessons,
+  getAll: () => [...lessons],
   getByCourseId: (course_id: string) =>
     lessons.filter((l) => l.course_id === course_id),
   getById: (id: string) => lessons.find((l) => l.id === id),
@@ -49,7 +49,7 @@ export const LessonRepo = {
 export const studentLessons: StudentLesson[] = [];
 
 export const StudentLessonRepo = {
-  getAll: () => studentLessons,
+  getAll: () => [...studentLessons],
   getByStudentId: (student_id: string) =>
     studentLessons.filter((sl) => sl.student_id === student_id),
   getByLessonId: (lesson_id: string) =>

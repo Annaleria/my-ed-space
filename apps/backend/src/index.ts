@@ -1,5 +1,4 @@
 import express from "express";
-import authRoutes from "./routes/authRoutes.js";
 import { CourseRepo } from "./repositories/courseRepository.js";
 import purchaseRoutes from "./routes/purchaseRoutes.js";
 import onboardingRoutes from "./routes/onboardingRoutes.js";
@@ -10,7 +9,6 @@ const app = express();
 const port = 3000;
 
 app.use(express.json());
-app.use("/api/auth", authRoutes);
 
 // Core flow routes
 app.use("/api/purchases", purchaseRoutes);

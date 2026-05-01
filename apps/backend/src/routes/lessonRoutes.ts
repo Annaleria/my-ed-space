@@ -35,14 +35,22 @@ router.get("/course/:course_id", (req, res) => {
     return res.status(403).json({ error: "Forbidden" });
   }
 
-  const courseLessons = LessonRepo.getByCourseId(course_id);
-  if (!courseLessons || courseLessons.length === 0) {
-    // No lessons were found for this course
-    return res.status(404).json({ error: "No lessons found for this course" });
-  }
+  try {
+    const courseLessons = LessonRepo.getByCourseId(course_id);
+    if (!courseLessons || courseLessons.length === 0) {
+      // No lessons were found for this course
+      return res
+        .status(404)
+        .json({ error: "No lessons found for this course" });
+    }
 
-  // Return all lessons for the course
-  res.json(courseLessons);
+    // Return all lessons for the course
+    return res.json(courseLessons);
+  } catch (error) {
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
 });
 
 // List lessons a student has accessed
@@ -64,7 +72,14 @@ router.get("/course/:course_id", (req, res) => {
 router.get("/student/:student_id", (req, res) => {
   const { student_id } = req.params;
   // DEMO: No real auth. In production, check that the requester is authorised to view this student's data.
-  res.json(StudentLessonRepo.getByStudentId(student_id));
+  try {
+    const studentLessons = StudentLessonRepo.getByStudentId(student_id);
+    return res.json(studentLessons);
+  } catch (error) {
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
 });
 
 // Enrol (access) a lesson for a student
@@ -75,31 +90,35 @@ router.post("/access", (req, res) => {
   }
 
   // Validate that the lesson exists
-  const lesson = LessonRepo.getById(lesson_id);
-  if (!lesson) {
-    return res.status(404).json({ error: "Lesson not found" });
+  try {
+    const lesson = LessonRepo.getById(lesson_id);
+    if (!lesson) {
+      return res.status(404).json({ error: "Lesson not found" });
+    }
+    // Authorisation: student must be enrolled in the course containing the lesson
+    const isEnrolled = EnrolmentRepo.getAll().some(
+      (enrol) =>
+        enrol.student_id === student_id && enrol.course_id === lesson.course_id,
+    );
+    if (!isEnrolled) {
+      return res
+        .status(403)
+        .json({ error: "Forbidden: not enrolled in course for this lesson" });
+    }
+    if (StudentLessonRepo.exists(student_id, lesson_id)) {
+      return res.status(200).json({ message: "Already accessed" });
+    }
+    StudentLessonRepo.add({
+      id: randomUUID(),
+      student_id,
+      lesson_id,
+    });
+    return res.status(201).json({ message: "Lesson accessed" });
+  } catch (error) {
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
   }
-
-  // Authorisation: student must be enrolled in the course containing the lesson
-  const isEnrolled = EnrolmentRepo.getAll().some(
-    (enrol) =>
-      enrol.student_id === student_id && enrol.course_id === lesson.course_id,
-  );
-  if (!isEnrolled) {
-    return res
-      .status(403)
-      .json({ error: "Forbidden: not enrolled in course for this lesson" });
-  }
-
-  if (StudentLessonRepo.exists(student_id, lesson_id)) {
-    return res.status(200).json({ message: "Already accessed" });
-  }
-  StudentLessonRepo.add({
-    id: randomUUID(),
-    student_id,
-    lesson_id,
-  });
-  res.status(201).json({ message: "Lesson accessed" });
 });
 
 export default router;

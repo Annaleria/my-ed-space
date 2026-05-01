@@ -24,7 +24,7 @@ export const courses: Course[] = [
 ];
 
 export const CourseRepo = {
-  getAll: () => courses,
+  getAll: () => [...courses],
   getById: (id: string) => courses.find((c) => c.id === id),
   add: (course: Course) => {
     courses.push(course);
@@ -34,7 +34,7 @@ export const CourseRepo = {
 export const enrolments: Enrolment[] = [];
 
 export const EnrolmentRepo = {
-  getAll: () => enrolments,
+  getAll: () => [...enrolments],
   add: (enrolment: Enrolment) => {
     enrolments.push(enrolment);
   },
